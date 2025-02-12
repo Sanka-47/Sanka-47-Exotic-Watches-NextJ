@@ -10,9 +10,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getStatusColor } from '@/utils/status';
 import formatStatus from '@/utils/formatStatus';
-import { formatToUSD } from '@/utils/moneyFormat';
+
 import { ProductStatus } from '@/types';
 import * as actions from '@/actions';
+import { formatToUSD } from '@/utils/moneyFormat';
 
 interface ProductData {
   id: number;
