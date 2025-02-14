@@ -8,12 +8,13 @@ import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getStatusColor } from '@/utils/status';
-import formatStatus from '@/utils/formatStatus';
+
 
 import { ProductStatus } from '@/types';
 import * as actions from '@/actions';
 import { formatToUSD } from '@/utils/moneyFormat';
+import { getStatusColor } from '@/utils/status';
+import formatStatus from '@/utils/formatStatus';
 
 interface ProductData {
   id: number;
@@ -30,9 +31,9 @@ interface ProductListTableProps {
 }
 
 export default function ProductListTable({ products }: ProductListTableProps) {
-  const handleDelete = (id: number) => {
-    actions.productDelete(id);
-  };
+  // const handleDelete = (id: number) => {
+  //   actions.productDelete(id);
+  // };
 
   const rows = products;
 
@@ -141,7 +142,7 @@ export default function ProductListTable({ products }: ProductListTableProps) {
             />
           </Link>
 
-          <IconButton
+          {/* <IconButton
             onClick={() => handleDelete(params.id as number)}
             aria-label="delete"
             style={{ marginBottom: '12px' }}
@@ -154,7 +155,7 @@ export default function ProductListTable({ products }: ProductListTableProps) {
                 color: '#db5756',
               }}
             />
-          </IconButton>
+          </IconButton> */}
         </>
       ),
     },
