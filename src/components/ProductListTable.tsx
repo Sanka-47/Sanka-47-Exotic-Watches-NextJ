@@ -31,9 +31,9 @@ interface ProductListTableProps {
 }
 
 export default function ProductListTable({ products }: ProductListTableProps) {
-  // const handleDelete = (id: number) => {
-  //   actions.productDelete(id);
-  // };
+  const handleDelete = (id: number) => {
+    actions.productDelete(id);
+  };
 
   const rows = products;
 
@@ -142,7 +142,7 @@ export default function ProductListTable({ products }: ProductListTableProps) {
             />
           </Link>
 
-          {/* <IconButton
+          <IconButton
             onClick={() => handleDelete(params.id as number)}
             aria-label="delete"
             style={{ marginBottom: '12px' }}
@@ -155,7 +155,7 @@ export default function ProductListTable({ products }: ProductListTableProps) {
                 color: '#db5756',
               }}
             />
-          </IconButton> */}
+          </IconButton>   
         </>
       ),
     },
