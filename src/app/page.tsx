@@ -1,6 +1,11 @@
+import AllProduct from "@/components/AllProduct";
+
 
 export default function Home() {
   return (
-    <div>Home page</div>
+    <div>
+      
+      <AllProduct/>
+    </div>
   );
 }

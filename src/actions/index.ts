@@ -86,3 +86,5 @@ export async function productDelete(productId: number) {
 
   redirect('/admin');
 }
+
+
