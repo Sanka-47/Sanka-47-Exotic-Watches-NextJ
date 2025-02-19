@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import { Box } from '@mui/material';
 import ProductView from '@/components/ProductView';
 
+
+
 interface ProductViewPageProps {
   params: {
     productId: string;

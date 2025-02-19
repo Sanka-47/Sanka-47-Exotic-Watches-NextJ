@@ -9,11 +9,14 @@ export const POST = async (req: Request) => {
     const formData = await req.formData();
 
     const name = formData.get("name") as string;
-    const price = formData.get("price") as string;
+    const price = parseFloat(formData.get("price") as string); // Convert price to number
     const quantity = parseInt(formData.get("quantity") as string);
     const description = formData.get("description") as string;
     const image = formData.get("image") as File;
+    const categoryId = parseInt(formData.get("category") as string); // Convert categoryId to number
     const status = "";
+
+    
 
     const productData: ProductData = {
       name,
@@ -22,6 +25,7 @@ export const POST = async (req: Request) => {
       quantity,
       status,
       imageUrl: "",
+      categoryId
     };
 
     if (image) {

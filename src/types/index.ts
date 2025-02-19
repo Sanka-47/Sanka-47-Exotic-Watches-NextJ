@@ -1,10 +1,18 @@
 export interface ProductData {
+    id?: number;
     name: string;
     description: string;
-    price: string;
+    price: number; // Use number instead of string for price
     quantity: number;
-    status: string;
     imageUrl: string;
+    status: string;
+    categoryId: number;
+    Categories?: Categories | null;
+  }
+
+export interface Categories {
+    id: number;
+    name: string;
 }
 
 export enum ProductStatus {

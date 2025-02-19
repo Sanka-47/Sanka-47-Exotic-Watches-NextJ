@@ -48,6 +48,22 @@ export default function AppContainer({
       icon: <GridViewOutlinedIcon />,
       path: '/admin',
     },
+
+    {
+      name: 'Dashboard',
+      icon: <GridViewOutlinedIcon />,
+      path: '/admin',
+    },
+    {
+      name: 'Dashboard',
+      icon: <GridViewOutlinedIcon />,
+      path: '/admin',
+    },
+    {
+      name: 'Dashboard',
+      icon: <GridViewOutlinedIcon />,
+      path: '/admin',
+    },
   ];
 
   const drawer = (
