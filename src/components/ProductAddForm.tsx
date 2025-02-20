@@ -3,7 +3,7 @@
 import MenuItem from "@mui/material/MenuItem";
 
 
-import Select from "@mui/material/Select";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -38,6 +38,7 @@ interface Product {
   quantity: number;
   description: string;
   image: File | null;
+  category: number;
 }
 
 
@@ -69,6 +70,7 @@ export default function ProductAddForm() {
     quantity: 0,
     description: "",
     image: null,
+    category:0,
   });
 
   const [imagePreview, setImagePreview] = React.useState<string | null>("");
@@ -100,6 +102,15 @@ export default function ProductAddForm() {
     setFields((prevFields) => ({
       ...prevFields,
       [name]: value,
+    }));
+  };
+
+  const handleCategoryChange = (event: SelectChangeEvent<number>) => {
+    const categoryId = Number(event.target.value); // Convert the selected value to a number
+
+    setFields((prevFields) => ({
+      ...prevFields,
+      category: categoryId, // Update the category field in the state
     }));
   };
 
@@ -314,15 +325,16 @@ export default function ProductAddForm() {
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                value="category"
-                label="Category"
-                // onChange={handleChange}
+                value={fields.category}
+                label="category"
+                name="category"
+                onChange={handleCategoryChange}
               >
                 {category.map((cat)=>(
 
 
 
-                  <MenuItem value={cat.id}>{cat.name}</MenuItem>
+                  <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
                 ))}
                 
                
@@ -397,6 +409,7 @@ export default function ProductAddForm() {
           >
             <Button
               type="submit"
+              // onClick={()=>console.log(fields)}
               variant="contained"
               sx={{
                 height: "48px",

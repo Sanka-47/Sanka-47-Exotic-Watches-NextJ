@@ -24,6 +24,8 @@ interface ProductData {
   quantity: number;
   imageUrl: string;
   status: string;
+  categoryId:number;
+  categoryName:string;
 }
 
 interface ProductListTableProps {
@@ -31,6 +33,10 @@ interface ProductListTableProps {
 }
 
 export default function ProductListTable({ products }: ProductListTableProps) {
+  React.useEffect (() => {
+    console.log(products);
+    }, []);
+
   const handleDelete = (id: number) => {
     actions.productDelete(id);
   };
@@ -62,9 +68,16 @@ export default function ProductListTable({ products }: ProductListTableProps) {
     },
     {
       field: 'name',
-      headerName: '',
+      headerName: 'Name',
       width: 120,
     },
+    {
+      field: 'categoryName',
+      headerName: 'Category',
+      width: 120,
+    },
+
+ 
     {
       field: 'description',
       headerName: 'Description',
