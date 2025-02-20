@@ -1,13 +1,15 @@
+import { Decimal, DecimalJsLike } from "@prisma/client/runtime/library";
+
 export interface ProductData {
     id?: number;
     name: string;
     description: string;
-    price: number; // Use number instead of string for price
+    price: Decimal | DecimalJsLike | number | string; // Use number instead of string for price
     quantity: number;
     imageUrl: string;
     status: string;
     categoryId: number;
-    Categories?: Categories | null;
+  
   }
 
 export interface Categories {
