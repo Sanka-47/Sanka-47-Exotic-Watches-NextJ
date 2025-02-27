@@ -35,6 +35,7 @@ interface Category {
 export function FreeSolo() {
   const [product, setProduct] = useState<Product | null>(null);
   const [category, setCategory] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState(0)
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -56,8 +57,10 @@ export function FreeSolo() {
     event: React.ChangeEvent<{}>,
     value: string | null
   ) {
+
+    
     if (value) {
-      const pr = await productSearch(value);
+      const pr = await productSearch(value,selectedCategory);
       if (pr) {
         // Convert price back to Decimal
         setProduct({
@@ -73,6 +76,13 @@ export function FreeSolo() {
       setProduct(null);
     }
   }
+  
+
+  const handleCategoryChange = (event: SelectChangeEvent<number>) => {
+      const categoryname = Number(event.target.value); // Convert the selected value to a number
+  
+      setSelectedCategory(categoryname);
+    };
 
   return (
     <div>
@@ -81,11 +91,14 @@ export function FreeSolo() {
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={category}
+          value={selectedCategory}
           label="category"
           name="category"
-          // onChange={handleCategoryChange}
+          onChange={handleCategoryChange}
         >
+           <MenuItem key={0} value={0}>
+              {"Sellect"}
+            </MenuItem>
           {category.map((cat) => (
             <MenuItem key={cat.id} value={cat.id}>
               {cat.name}
