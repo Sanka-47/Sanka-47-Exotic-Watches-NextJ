@@ -1,17 +1,19 @@
-'use server';
+"use server";
 
-import { db } from '@/db';
-import cloudinary from '@/config/cloudinary';
-import { redirect } from 'next/navigation';
-import { getImagePublicId } from '@/utils/cloudinary';
+import { db } from "@/db";
+import cloudinary from "@/config/cloudinary";
+import { redirect } from "next/navigation";
+import { getImagePublicId } from "@/utils/cloudinary";
+import { Product,Categories } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export async function productEdit(formData: FormData) {
-  const id = parseInt(formData.get('id') as string);
-  const name = formData.get('name') as string;
-  const price = formData.get('price') as string;
-  const quantity = parseInt(formData.get('quantity') as string);
-  const description = formData.get('description') as string;
-  const image = formData.get('image') as File | null;
+  const id = parseInt(formData.get("id") as string);
+  const name = formData.get("name") as string;
+  const price = formData.get("price") as string;
+  const quantity = parseInt(formData.get("quantity") as string);
+  const description = formData.get("description") as string;
+  const image = formData.get("image") as File | null;
 
   let imageUrl: string | undefined;
 
@@ -19,12 +21,12 @@ export async function productEdit(formData: FormData) {
     const imageBuffer = await image.arrayBuffer();
     const imageArray = Array.from(new Uint8Array(imageBuffer));
     const imageData = Buffer.from(imageArray);
-    const imageBase64 = imageData.toString('base64');
+    const imageBase64 = imageData.toString("base64");
 
     const result = await cloudinary.uploader.upload(
       `data:image/png;base64,${imageBase64}`,
       {
-        folder: 'CRUD',
+        folder: "CRUD",
       }
     );
 
@@ -58,7 +60,7 @@ export async function productEdit(formData: FormData) {
     },
   });
 
-  redirect('/admin');
+  redirect("/admin");
 }
 
 export async function productDelete(productId: number) {
@@ -84,7 +86,44 @@ export async function productDelete(productId: number) {
     },
   });
 
-  redirect('/admin');
+  redirect("/admin");
+}
+// interface Product {
+//   id: number;
+//   name: string;
+//   description: string;
+//   price: Decimal;
+//   quantity: number;
+//   imageUrl: string;
+//   status: string;
+//   categoryId: number;
+// }
+export async function productSearch(
+
+  
+  
+  value: string | null
+) {
+  // console.log("Selected value:", value);
+  const product: Product | null = await db.product.findFirst({
+    where: {
+      name: value || undefined,
+    },
+  });
+
+  if (product) {
+    // Convert the Decimal price to a number
+    return {
+      ...product,
+      price: product.price instanceof Decimal ? product.price.toNumber() : product.price,
+    };
+  } else {
+    
+    return null;
+  }
 }
 
-
+export async function loadCategoru() {
+  const category= await db.categories.findMany;
+  return category;
+}
