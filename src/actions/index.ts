@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getImagePublicId } from "@/utils/cloudinary";
 import { Product,Categories } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
+import { Category } from "@mui/icons-material";
 
 export async function productEdit(formData: FormData) {
   const id = parseInt(formData.get("id") as string);
@@ -102,12 +103,14 @@ export async function productSearch(
 
   
   
-  value: string | null
+  value: string | null,
+  category :number | null
 ) {
   // console.log("Selected value:", value);
   const product: Product | null = await db.product.findFirst({
     where: {
       name: value || undefined,
+      categoryId: category || undefined
     },
   });
 
@@ -123,7 +126,4 @@ export async function productSearch(
   }
 }
 
-export async function loadCategoru() {
-  const category= await db.categories.findMany;
-  return category;
-}
+
