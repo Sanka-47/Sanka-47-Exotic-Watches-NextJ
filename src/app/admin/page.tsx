@@ -35,7 +35,7 @@ export default async function AdminDashboardPage() {
     description: product.description,
     price: Number(product.price),
     quantity: product.quantity,
-    imageUrl: product.imageUrl,
+    imageUrl: product.imageUrl_3,
     status: product.status,
     categoryId: product.categoryId,
     categoryName:  product.Categories?.name || "Uncategorized", // Add category name

@@ -2,7 +2,6 @@
 
 import MenuItem from "@mui/material/MenuItem";
 
-
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -21,42 +20,41 @@ import {
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { db } from "@/db";
 import { LineAxisOutlined } from "@mui/icons-material";
-import * as actions from '@/actions';
-
-
-
+import * as actions from "@/actions";
 
 interface Category {
   id: number;
   name: string;
 }
 
-
 interface Product {
   name: string;
   price: string;
   quantity: number;
   description: string;
-  image: File | null;
+  image_1: File | null;
+  image_2: File | null;
+  image_3: File | null;
+
   category: number;
 }
 
-
 export default function ProductAddForm() {
-
   const [category, setCategory] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
 
- 
+  
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/admin/category'); // Fetch data from Next.js API route
+        const response = await fetch("/api/admin/category"); // Fetch data from Next.js API route
         const data = await response.json();
         setCategory(data); // Set the fetched data to state
         console.log(data); // Log the data to the browser console
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
         // Optionally: Add user feedback or retry logic here
       }
     };
@@ -64,37 +62,48 @@ export default function ProductAddForm() {
     fetchCategories();
   }, []);
 
-  const [fields, setFields] = React.useState<Product>({
+  const [fields, setFields] = React.useState({
     name: "",
     price: "",
     quantity: 0,
     description: "",
-    image: null,
-    category:0,
+    image_1:"",
+    image_2: "",
+    image_3: "",
+    category: 0,
   });
 
-  const [imagePreview, setImagePreview] = React.useState<string | null>("");
 
-  const handleImageChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    const files = evt.target.files;
-
-    if (files && files.length > 0) {
-      const file = files[0];
-
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const selectedFiles = Array.from(files).slice(0, 3); // Limit to 3 images
+  
+      setImageFiles(selectedFiles);
+  
+      // Generate previews
+      const previews = selectedFiles.map((file) => URL.createObjectURL(file));
+      setImagePreviews(previews);
+  
+      // Update fields with image file names (or base64 if needed)
       setFields((prevFields) => ({
         ...prevFields,
-        image: file,
+        image_1: selectedFiles[0] ? selectedFiles[0].name : "",
+        image_2: selectedFiles[1] ? selectedFiles[1].name : "",
+        image_3: selectedFiles[2] ? selectedFiles[2].name : "",
       }));
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          setImagePreview(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
     }
   };
+  
+
+  const removeImage = (index: number) => {
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = evt.target;
@@ -130,158 +139,143 @@ export default function ProductAddForm() {
         </Box>
 
         <Box
-          sx={{
-            my: 5,
+      sx={{
+        my: 5,
+        display: "flex",
+        flexWrap: "wrap",
+        borderBottom: "1px dashed #c8cdd3",
+        pb: 8,
+      }}
+    >
+      <Box
+        sx={{
+          px: 2,
+          pb: 5,
+          width: { xs: "100%", sm: "100%", md: "33.333%" },
+        }}
+      >
+        <Typography variant="h6" fontWeight="bold" mb={2}>
+          Image
+        </Typography>
+        <Typography variant="body1">
+          Upload up to 3 product images here
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          p: 5,
+          bgcolor: "background.paper",
+          boxShadow: 2,
+          borderRadius: "0.25rem",
+          width: { xs: "100%", sm: "100%", md: "66.667%" },
+        }}
+      >
+        {/* IMAGE UPLOAD (Start) */}
+        <label
+          htmlFor="image"
+          style={{
             display: "flex",
-            flexWrap: "wrap",
-            borderBottom: "1px dashed #c8cdd3",
-            pb: 8,
+            flexDirection: "column",
+            alignItems: "center",
+            cursor: "pointer",
           }}
         >
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            id="image"
+            name="image"
+            onChange={handleImageChange}
+            style={{ display: "none" }}
+          />
           <Box
             sx={{
-              px: 2,
-              pb: 5,
-              width: { xs: "100%", sm: "100%", md: "33.333%" },
-            }}
-          >
-            <Typography variant="h6" fontWeight="bold" mb={2}>
-              Image
-            </Typography>
-            <Typography variant="body1">
-              Upload your product image here
-            </Typography>
-          </Box>
-
-          <Box
-            sx={{
-              p: 5,
-              bgcolor: "background.paper",
-              boxShadow: 2,
+              borderStyle: "dashed",
+              borderColor: "#d1d5db",
+              borderWidth: "1px",
               borderRadius: "0.25rem",
-              width: { xs: "100%", sm: "100%", md: "66.667%" },
+              width: "100%",
+              p: 3,
+              mb: 4,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              "&:hover": {
+                borderColor: "#bcbfc4",
+                "& svg": {
+                  color: "#bcbfc4",
+                },
+              },
             }}
           >
-            {/* IMAGE (start) */}
-            <label
-              htmlFor="image"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
+            <CloudUploadIcon
+              fontSize="large"
+              sx={{
+                color: "#d1d5db",
               }}
-            >
-              <input
-                type="file"
-                accept="image/*"
-                required
-                id="image"
-                name="image"
-                onChange={handleImageChange}
-                style={{ display: "none" }}
-              />
-              <Box
-                sx={{
-                  borderStyle: "dashed",
-                  borderColor: "#d1d5db",
-                  borderWidth: "1px",
-                  borderRadius: "0.25rem",
-                  cursor: "pointer",
-                  width: "100%",
-                  p: 3,
-                  mb: 4,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  textAlign: "center",
-                  "&:hover": {
-                    borderColor: "#bcbfc4",
-                    "& svg": {
-                      color: "#bcbfc4",
-                    },
-                  },
+            />
+            <Typography variant="body1" mt={2}>
+              <span
+                style={{
+                  fontWeight: "bold",
+                  color: "hsla(185, 64%, 39%, 1.0)",
                 }}
               >
-                <CloudUploadIcon
-                  fontSize="large"
-                  sx={{
-                    color: "#d1d5db",
-                  }}
-                />
-                <Typography variant="body1" mt={2}>
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      color: "hsla(185, 64%, 39%, 1.0)",
-                    }}
-                  >
-                    Upload an image
-                  </span>{" "}
-                </Typography>
-              </Box>
-            </label>
-
-            <Box>
-              {imagePreview && (
-                <Box
-                  sx={{
-                    position: "relative",
-                    mt: 2,
-                    display: "inline-flex",
-                    flexDirection: "column",
-                    overflow: "hidden",
-                    borderRadius: "0.375rem",
-                    marginRight: "0.5rem",
-                    border: "1px solid #E5E5E5",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      position: "relative",
-                      height: "4rem",
-                      width: "7rem",
-                      borderRadius: "0.375rem",
-                      overflow: "hidden",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Image
-                      src={imagePreview}
-                      width={60}
-                      height={60}
-                      alt="Image preview"
-                      loading="lazy"
-                      style={{ objectFit: "contain" }}
-                    />
-                  </Box>
-                  <IconButton
-                    sx={{
-                      position: "absolute",
-                      top: "0.25rem",
-                      display: "flex",
-                      height: "1rem",
-                      width: "1rem",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: "9999px",
-                      backgroundColor: "#DC2626",
-                      color: "#FFFFFF",
-                      fontSize: "0.625rem",
-                      outline: "none",
-                      right: "0.25rem",
-                    }}
-                    onClick={() => setImagePreview(null)}
-                  >
-                    x
-                  </IconButton>
-                </Box>
-              )}
-            </Box>
+                Upload images
+              </span>
+            </Typography>
           </Box>
+        </label>
+
+        {/* IMAGE PREVIEWS */}
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          {imagePreviews.map((src, index) => (
+            <Box
+              key={index}
+              sx={{
+                position: "relative",
+                display: "inline-flex",
+                flexDirection: "column",
+                overflow: "hidden",
+                borderRadius: "0.375rem",
+                border: "1px solid #E5E5E5",
+                width: "7rem",
+                height: "4rem",
+              }}
+            >
+              <Image
+                src={src}
+                width={70}
+                height={60}
+                alt={`Image preview ${index + 1}`}
+                loading="lazy"
+                style={{ objectFit: "contain" }}
+              />
+              <IconButton
+                sx={{
+                  position: "absolute",
+                  top: "0.25rem",
+                  right: "0.25rem",
+                  height: "1rem",
+                  width: "1rem",
+                  backgroundColor: "#DC2626",
+                  color: "#FFFFFF",
+                  fontSize: "0.625rem",
+                  borderRadius: "9999px",
+                }}
+                onClick={() => removeImage(index)}
+              >
+                x
+              </IconButton>
+            </Box>
+          ))}
         </Box>
+      </Box>
+    </Box>
 
         <Box sx={{ my: 5, display: "flex", flexWrap: "wrap" }}>
           <Box
@@ -330,14 +324,11 @@ export default function ProductAddForm() {
                 name="category"
                 onChange={handleCategoryChange}
               >
-                {category.map((cat)=>(
-
-
-
-                  <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+                {category.map((cat) => (
+                  <MenuItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </MenuItem>
                 ))}
-                
-               
               </Select>
             </FormControl>
 

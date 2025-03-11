@@ -6,7 +6,10 @@ export interface ProductData {
     description: string;
     price: Decimal | DecimalJsLike | number | string; // Use number instead of string for price
     quantity: number;
-    imageUrl: string;
+    imageUrl_1: string;
+    imageUrl_2: string;
+    imageUrl_3: string;
+
     status: string;
     categoryId: number;
   
