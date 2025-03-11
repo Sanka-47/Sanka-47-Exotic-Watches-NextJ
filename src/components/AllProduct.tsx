@@ -38,8 +38,8 @@ async function AllProduct() {
             style={{ textDecoration: "none" }}
           >
             <CardMedia
-              sx={{ height: 140 }}
-              image={product.imageUrl}
+              sx={{ height: 340 }}
+              image={product.imageUrl_3}
               title={product.name}
             />
             <CardContent>

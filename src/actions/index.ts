@@ -4,7 +4,7 @@ import { db } from "@/db";
 import cloudinary from "@/config/cloudinary";
 import { redirect } from "next/navigation";
 import { getImagePublicId } from "@/utils/cloudinary";
-import { Product,Categories } from "@prisma/client";
+import { Product, Categories } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { Category } from "@mui/icons-material";
 
@@ -73,13 +73,19 @@ export async function productDelete(productId: number) {
   });
 
   if (currentProduct) {
-    const public_id = getImagePublicId(currentProduct.imageUrl);
-
-    await cloudinary.uploader.destroy(
-      `${process.env.CLOUDINARY_PROJECT_FOLDER}/${public_id}`
+    const publicIds = [
+      getImagePublicId(currentProduct.imageUrl_1),
+      getImagePublicId(currentProduct.imageUrl_2),
+      getImagePublicId(currentProduct.imageUrl_3),
+    ].filter(Boolean); // Remove any empty or null values
+  
+    // Delete images concurrently
+    await Promise.all(
+      publicIds.map((publicId) =>
+        cloudinary.uploader.destroy(`${process.env.CLOUDINARY_PROJECT_FOLDER}/${publicId}`)
+      )
     );
   }
-
   // delete image from database
   await db.product.delete({
     where: {
@@ -100,30 +106,23 @@ export async function productDelete(productId: number) {
 //   categoryId: number;
 // }
 export async function productSearch(
-
-  
-  
   value: string | null,
-  category :number | null
+  category: number | null
 ) {
-  // console.log("Selected value:", value);
-  const product: Product | null = await db.product.findFirst({
+  const products = await db.product.findMany({
     where: {
-      name: value || undefined,
-      categoryId: category || undefined
+      name: {
+        contains: value || "", // Partial match
+         // Case-insensitive search
+      },
+      categoryId: category || undefined, // Filter by category if provided
     },
   });
 
-  if (product) {
-    // Convert the Decimal price to a number
-    return {
-      ...product,
-      price: product.price instanceof Decimal ? product.price.toNumber() : product.price,
-    };
-  } else {
-    
-    return null;
-  }
+  // Convert Decimal price to number
+  return products.map((product) => ({
+    ...product,
+    price:
+      product.price instanceof Decimal ? product.price.toNumber() : product.price,
+  }));
 }
-
-

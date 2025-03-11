@@ -19,7 +19,9 @@ model Product {
   description String      @db.Text
   price       Decimal     @db.Decimal(10, 2)
   quantity    Int         @default(0)
-  imageUrl    String
+  imageUrl_1   String
+  imageUrl_2   String
+  imageUrl_3   String
   status      String
   Categories  Categories? @relation(fields: [categoryId], references: [id])
   categoryId  Int  
