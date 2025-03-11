@@ -19,6 +19,7 @@ interface ProductViewProps {
     price: string;
     quantity: number;
     imageUrl: string;
+    imageUrl_2: string;
     status: string;
   };
 }
@@ -60,7 +61,7 @@ export default function ProductView({ product }: ProductViewProps) {
           >
             <Avatar
               alt={product.name}
-              src={product.imageUrl}
+              src={product.imageUrl_2}
               sx={{
                 height: '100%',
                 width: '100%',
@@ -198,21 +199,7 @@ export default function ProductView({ product }: ProductViewProps) {
                 icon: <ProductionQuantityLimitsIcon />,
                 color: '#0017E1',
               },
-              {
-                label: 'Image',
-                value: (
-                  <Link
-                    href={product.imageUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    sx={{ color: 'black' }}
-                  >
-                    URL
-                  </Link>
-                ),
-                icon: <ImageSearchIcon />,
-                color: '#1be100',
-              },
+             
             ].map((item, index) => (
               <Grid item key={index} xs={12} sm={6} md={4} lg={6} xl={4}>
                 <Box
