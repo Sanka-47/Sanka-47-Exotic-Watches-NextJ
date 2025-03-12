@@ -43,27 +43,20 @@ export default function AppContainer({
   };
 
   const drawerLinks = [
+   
     {
+      name: 'Home Page',
+      icon: <GridViewOutlinedIcon />,
+      path: '/',
+    },
+
+ {
       name: 'Dashboard',
       icon: <GridViewOutlinedIcon />,
       path: '/admin',
     },
 
-    {
-      name: 'Dashboard',
-      icon: <GridViewOutlinedIcon />,
-      path: '/admin',
-    },
-    {
-      name: 'Dashboard',
-      icon: <GridViewOutlinedIcon />,
-      path: '/admin',
-    },
-    {
-      name: 'Dashboard',
-      icon: <GridViewOutlinedIcon />,
-      path: '/admin',
-    },
+   
   ];
 
   const drawer = (

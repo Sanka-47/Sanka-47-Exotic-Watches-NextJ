@@ -1,22 +1,19 @@
 import React from 'react';
-import { db } from '@/db';
 import { Product } from '@prisma/client';
+import { db } from '@/db';
 import { notFound } from 'next/navigation';
-import { Box } from '@mui/material';
-import ProductView from '@/components/ProductView';
+import ProductEditForm from '@/components/ProductEditForm';
 
-
-
-interface ProductViewPageProps {
+interface ProductEditPageProps {
   params: {
     productId: string;
   };
 }
 
-export default async function ProductViewPage(props: ProductViewPageProps) {
+export default async function ProductEditPage(props: ProductEditPageProps) {
   const productId = parseInt(props.params.productId);
 
-  const product: Product | null = await db.product.findUnique({
+  let product: Product | null = await db.product.findUnique({
     where: {
       id: productId,
     },
@@ -32,14 +29,13 @@ export default async function ProductViewPage(props: ProductViewPageProps) {
     description: product.description,
     price: product.price.toString(),
     quantity: product.quantity,
-    imageUrl: product.imageUrl_3,
-    imageUrl_2: product.imageUrl_2,
+    imageUrl: product.imageUrl,
     status: product.status,
   };
 
   return (
     <>
-      <ProductView product={plainProduct} />
+      <ProductEditForm product={plainProduct} />
     </>
   );
 }
