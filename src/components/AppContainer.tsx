@@ -24,6 +24,10 @@ import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import MenuIcon from '@mui/icons-material/Menu';
 import { FastForwardOutlined } from '@mui/icons-material';
 import { Alfa_Slab_One } from 'next/font/google';
+import { useSession } from 'next-auth/react'; // Import useSession
+import Image from 'next/image';
+import { SignOutButton } from './sign-out-button';
+import { SignInButton } from './sign-in-button';
 
 export default function AppContainer({
   children,
@@ -31,8 +35,10 @@ export default function AppContainer({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  // Fetch the session using useSession
+  const { data: session, status } = useSession();
 
   const handleDrawerClose = () => {
     setDrawerOpen(false);
@@ -43,20 +49,16 @@ export default function AppContainer({
   };
 
   const drawerLinks = [
-   
     {
       name: 'Home Page',
       icon: <GridViewOutlinedIcon />,
       path: '/',
     },
-
- {
+    {
       name: 'Dashboard',
       icon: <GridViewOutlinedIcon />,
       path: '/admin',
     },
-
-   
   ];
 
   const drawer = (
@@ -107,10 +109,8 @@ export default function AppContainer({
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* reset defaults */}
       <CssBaseline />
 
-      {/* header */}
       <AppBar>
         <Toolbar sx={{ backgroundColor: '#ffffff' }}>
           <IconButton
@@ -119,10 +119,28 @@ export default function AppContainer({
           >
             <MenuIcon />
           </IconButton>
+          {session ? ( // If session exists, show SignOutButton
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Typography variant="h6" sx={{ color: 'black' }}>
+                {session.user?.name}
+              </Typography>
+              {session.user?.image && (
+                <Image
+                  src={session.user.image}
+                  width={48}
+                  height={48}
+                  alt={session.user.name ?? "Avatar"}
+                  style={{ borderRadius: "50%" }}
+                />
+              )}
+              <SignOutButton /> 
+            </div>
+          ) : (
+            <SignInButton /> 
+          )}
         </Toolbar>
       </AppBar>
 
-      {/* navbar */}
       <Box component="nav" sx={{ width: { sm: drawerWidth } }}>
         <Drawer
           variant="permanent"
@@ -152,7 +170,6 @@ export default function AppContainer({
         </Drawer>
       </Box>
 
-      {/* main */}
       <Box
         component="main"
         sx={{

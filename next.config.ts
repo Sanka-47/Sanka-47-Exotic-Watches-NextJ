@@ -9,6 +9,7 @@ const nextConfig = {
         pathname: '**',
       },
     ],
+    domains: ["avatars.googleusercontent.com", "lh3.googleusercontent.com"], // Add lh3.googleusercontent.com here
   },
 };
 

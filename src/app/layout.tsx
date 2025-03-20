@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppContainer from "@/components/AppContainer";
+import { SessionProvider } from "next-auth/react";
 
 
 const geistSans = Geist({
@@ -27,9 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AppContainer>
+        <SessionProvider>
+          <AppContainer>
           {children}
         </AppContainer>
+        </SessionProvider>
+        
         
       </body>
     </html>
