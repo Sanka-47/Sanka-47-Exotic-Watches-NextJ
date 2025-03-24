@@ -14,7 +14,8 @@ interface ProductViewPageProps {
 }
 
 export default async function ProductViewPage(props: ProductViewPageProps) {
-  const productId = parseInt(props.params.productId);
+  const params = await props.params;
+  const productId = parseInt(params.productId);
 
   const product: Product | null = await db.product.findUnique({
     where: {
