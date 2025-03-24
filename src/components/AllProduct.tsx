@@ -31,7 +31,10 @@ async function AllProduct() {
 
       <FreeSolo />
 
-      {products.map((product) => (
+      {
+      
+      
+      products.map((product) => (
         <Card sx={{ maxWidth: 345 }} key={product.id}>
           <Link
             href={`/admin/product/${product.id}/view`}

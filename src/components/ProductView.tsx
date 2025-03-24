@@ -10,8 +10,8 @@ import GradingIcon from "@mui/icons-material/Grading";
 import ImageSearchIcon from "@mui/icons-material/ImageSearch";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import ProductBanner from "./ProductBanner";
-import { useRouter } from "next/router";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+
 
 interface ProductViewProps {
   product: {
@@ -28,8 +28,30 @@ interface ProductViewProps {
 
 
 export default function ProductView({ product }: ProductViewProps) {
- 
-  const pathname = usePathname(); 
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleOrderClick = () => {
+    console.log("Product Price:", product.price); // Debugging
+    if (!product.price) {
+      alert("Price is missing or invalid!");
+      return; // Exit if price is missing
+    }
+  
+    // Use URLSearchParams to construct the query string
+    const queryParams = new URLSearchParams({ price: product.price });
+    const url = `/user/product/${product.id}/order?${queryParams.toString()}`;
+    console.log("Navigating to:", url); // Debugging
+  
+    // Use router.push for client-side navigation
+    router.push(url);
+  
+    // Fallback to window.location.href if router.push fails
+    setTimeout(() => {
+      window.location.href = url;
+    }, 100); // Fallback after 100ms
+  };
+  
   return (
     <>
       <ProductBanner product={product} />
@@ -114,6 +136,7 @@ export default function ProductView({ product }: ProductViewProps) {
             <Button
               component="a"
               variant="contained"
+              onClick={handleOrderClick}
               href={`/user/product/${product.id}/order`}
               sx={{
                 height: "48px",
