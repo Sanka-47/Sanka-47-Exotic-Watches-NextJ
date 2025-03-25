@@ -1,4 +1,5 @@
 import AllProduct from "@/components/AllProduct";
+import { PaginationDesign } from "@/components/PaginationDesign";
 
 
 export default function Home() {
@@ -6,6 +7,7 @@ export default function Home() {
     <div>
       
       <AllProduct/>
+      <PaginationDesign/>
     </div>
   );
 }

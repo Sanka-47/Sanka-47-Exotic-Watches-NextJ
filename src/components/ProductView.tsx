@@ -1,17 +1,14 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import formatStatus from "@/utils/formatStatus";
-import { Box, Typography, Link, Avatar, Button, Grid } from "@mui/material";
+import { Box, Typography, Avatar, Button, Grid, Card, CardMedia, Dialog, DialogContent } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import NumbersIcon from "@mui/icons-material/Numbers";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import ProductionQuantityLimitsIcon from "@mui/icons-material/ProductionQuantityLimits";
 import GradingIcon from "@mui/icons-material/Grading";
-import ImageSearchIcon from "@mui/icons-material/ImageSearch";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import ProductBanner from "./ProductBanner";
 import { useRouter, usePathname } from "next/navigation";
-
 
 interface ProductViewProps {
   product: {
@@ -22,289 +19,172 @@ interface ProductViewProps {
     quantity: number;
     imageUrl: string;
     imageUrl_2: string;
+    imageUrl_3: string;
     status: string;
   };
 }
 
-
 export default function ProductView({ product }: ProductViewProps) {
   const router = useRouter();
   const pathname = usePathname();
+  
+  // State for managing the modal and selected image
+  const [open, setOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleOrderClick = () => {
-    console.log("Product Price:", product.price); // Debugging
     if (!product.price) {
       alert("Price is missing or invalid!");
-      return; // Exit if price is missing
+      return;
     }
-  
-    // Use URLSearchParams to construct the query string
-    const queryParams = new URLSearchParams({ price: product.price });
-    const url = `/user/product/${product.id}/order?${queryParams.toString()}`;
-    console.log("Navigating to:", url); // Debugging
-  
-    // Use router.push for client-side navigation
-    router.push(url);
-  
-    // Fallback to window.location.href if router.push fails
-    setTimeout(() => {
-      window.location.href = url;
-    }, 100); // Fallback after 100ms
+    router.push(`/user/product/${product.id}/order?price=${product.price}`);
   };
-  
+
+  // Handler to open the modal and set the selected image
+  const handleImageClick = (image: string) => {
+    setSelectedImage(image);
+    setOpen(true);
+  };
+
+  // Handler to close the modal
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedImage(null);
+  };
+
   return (
     <>
       <ProductBanner product={product} />
-
-      <Box
-        sx={{
-          position: "relative",
-          zIndex: 10,
-          px: { xs: 4, lg: 6, xl: 10 },
-          mt: "-16px",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "1.5rem",
-            mt: { xs: "-56px", lg: "-6.0625rem" },
-            flex: "0 0 auto",
-            alignItems: "center",
-            position: "relative",
-          }}
-        >
-          <Box
-            sx={{
-              borderRadius: "50%",
-              overflow: "hidden",
-              boxShadow:
-                "0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px -1px rgba(0, 0, 0, 0.1)",
-              border: "2px solid #F75159",
-              height: { xs: "8rem", lg: "12.125rem" },
-              width: { xs: "8rem", lg: "12.125rem" },
-            }}
-          >
-            <Avatar
-              alt={product.name}
-              src={product.imageUrl_2}
-              sx={{
-                height: "100%",
-                width: "100%",
-              }}
-            />
-            <Box
-              sx={{
-                position: "absolute",
-                borderRadius: "50%",
-                border: "2px solid white",
-                backgroundColor: "#F75159",
-                width: "1rem",
-                height: "1rem",
-                top: { xs: "1rem", lg: "1rem" },
-                left: { xs: "6.7rem", lg: "9.6rem" },
-              }}
-            ></Box>
-          </Box>
-        </Box>
-
-        <Box
-          sx={{
-            flex: "1 1 auto",
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-          }}
-        >
-          {pathname.includes("/admin/product") && (
-            <Button
-              component="a"
-              variant="contained"
-              href={`/admin/product/${product.id}/edit`}
-              sx={{
-                height: "48px",
-                backgroundColor: "hsla(185, 64%, 39%, 1.0)",
-                "&:hover": { backgroundColor: "hsla(185, 64%, 29%, 1.0)" },
-              }}
-            >
-              <EditIcon sx={{ fontSize: "1.4rem", mr: 1 }} /> Edit Product
-            </Button>
-          )}
-
-          {pathname.includes("/user/product") && (
-            <Button
-              component="a"
-              variant="contained"
-              onClick={handleOrderClick}
-              href={`/user/product/${product.id}/order`}
-              sx={{
-                height: "48px",
-                backgroundColor: "hsla(185, 64%, 39%, 1.0)",
-                "&:hover": { backgroundColor: "hsla(185, 64%, 29%, 1.0)" },
-              }}
-            >
-              <EditIcon sx={{ fontSize: "1.4rem", mr: 1 }} /> Order Now
-            </Button>
-          )}
-        </Box>
-      </Box>
-
-      <Box
-        sx={{
-          my: 5,
-          display: "flex",
-          gap: 4,
-          flexWrap: "wrap",
-          alignItems: "stretch",
-        }}
-      >
-        <Box
-          sx={{
-            position: "relative",
-            overflow: "hidden",
-            borderRadius: "0.5rem",
-            backgroundColor: "white",
-            p: 4,
-            "&:first-child": {
-              width: "100%",
-              mb: { xs: 4, lg: "-6.0625rem" },
-              lg: { width: "18rem", p: 6 },
-              xl: { width: "22.375rem", p: 8 },
-            },
-            "&:last-child": { flex: 1, p: { xs: 4, lg: 6, xl: 7, "2xl": 10 } },
-          }}
-        >
-          <Box sx={{ pb: 2, borderBottom: "1px dashed #E5E5E5" }}>
-            <Typography variant="body2" sx={{ color: "#666" }}>
-              Location
+      <Box sx={{ px: { xs: 2, md: 6 }, mt: -8 }}>
+        {/* Product Header Card */}
+        <Card sx={{ display: "flex", alignItems: "center", p: 3, borderRadius: 3, boxShadow: 3 }}>
+          <Avatar
+            alt={product.name}
+            src={product.imageUrl_2}
+            sx={{ width: 120, height: 120, border: "4px solid #F75159" }}
+          />
+          <Box sx={{ ml: 3 }}>
+            <Typography variant="h4" fontWeight={700} color="text.primary">
+              {product.name}
             </Typography>
-            <Typography variant="body1" sx={{ color: "text.primary" }}>
-              USA
-            </Typography>
-          </Box>
-          <Box sx={{ pt: 2 }}>
-            <Typography variant="body2" sx={{ color: "#666" }}>
-              Description
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: "text.primary", lineHeight: "171.429%" }}
-            >
+            <Typography variant="body1" color="text.secondary" mt={1}>
               {product.description}
             </Typography>
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: "-8px",
-                width: "calc(100% + 64px)",
-              }}
-            />
+            <Button
+              onClick={handleOrderClick}
+              variant="contained"
+              sx={{ mt: 2, borderRadius: 20, backgroundColor: "#0288d1" }}
+            >
+              <EditIcon sx={{ mr: 1 }} /> Order Now
+            </Button>
           </Box>
-        </Box>
+        </Card>
 
-        <Box
-          sx={{
-            flex: 1,
-            borderRadius: "0.5rem",
-            backgroundColor: "white",
-            p: 4,
-          }}
-        >
-          <Grid container spacing={3}>
-            {[
-              {
-                label: "Product ID",
-                value: product.id,
-                icon: <NumbersIcon />,
-                color: "#865DFF",
-              },
-              {
-                label: "Price",
-                value: `$${product.price}`,
-                icon: <AttachMoneyIcon />,
-                color: "#FF8D29",
-              },
-              {
-                label: "Status",
-                value: formatStatus(product.status),
-                icon: <GradingIcon />,
-                color: "#DF0D00",
-              },
-              {
-                label: "Name",
-                value: product.name,
-                icon: <BookmarkBorderIcon />,
-                color: "#00AAFF",
-              },
-              {
-                label: "Quantity",
-                value: product.quantity,
-                icon: <ProductionQuantityLimitsIcon />,
-                color: "#0017E1",
-              },
-            ].map((item, index) => (
-              <Grid item key={index} xs={12} sm={6} md={4} lg={6} xl={4}>
+        {/* Product Stats Grid */}
+        <Grid container spacing={3} mt={3}>
+          {[
+            {
+              label: "Product ID",
+              value: product.id,
+              icon: <NumbersIcon fontSize="large" />,
+              color: "#865DFF",
+            },
+            {
+              label: "Price",
+              value: `$${product.price}`,
+              icon: <AttachMoneyIcon fontSize="large" />,
+              color: "#FF8D29",
+            },
+            {
+              label: "Status",
+              value: formatStatus(product.status),
+              icon: <GradingIcon fontSize="large" />,
+              color: "#DF0D00",
+            },
+            {
+              label: "Quantity",
+              value: product.quantity,
+              icon: <ProductionQuantityLimitsIcon fontSize="large" />,
+              color: "#0017E1",
+            },
+          ].map((item, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <Card sx={{ p: 3, textAlign: "center", borderRadius: 3, boxShadow: 2 }}>
                 <Box
                   sx={{
+                    width: 64,
+                    height: 64,
                     display: "flex",
                     alignItems: "center",
-                    borderRadius: "0.5rem",
-                    border: "1px solid #E5E5E5",
-                    backgroundColor: "white",
-                    p: 5,
-                    "&:hover": { borderColor: "#1b6cef" },
+                    justifyContent: "center",
+                    borderRadius: "50%",
+                    backgroundColor: item.color,
+                    color: "#fff",
+                    mx: "auto",
+                    mb: 2,
                   }}
                 >
-                  <Box sx={{ flex: 1 }}>
-                    <Typography
-                      variant="h5"
-                      sx={{ mb: 1.5, color: "text.primary" }}
-                    >
-                      {item.value}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "text.secondary" }}
-                    >
-                      {item.label}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      position: "relative",
-                      width: "48px",
-                      height: "48px",
-                      borderRadius: "50%",
-                      overflow: "hidden",
-                      borderColor: item.color,
-                      borderWidth: "2px",
-                      borderStyle: "solid",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        borderRadius: "50%",
-                        width: "100%",
-                        height: "100%",
-                        backgroundColor: "#fff",
-                        color: item.color,
-                        fontSize: "3xl",
-                        border: "3px solid white",
-                      }}
-                    >
-                      {item.icon}
-                    </Box>
-                  </Box>
+                  {item.icon}
                 </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+                <Typography variant="h6" fontWeight={600}>
+                  {item.value}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {item.label}
+                </Typography>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Product Images Grid */}
+        <Grid container spacing={2} mt={3}>
+          {[product.imageUrl, product.imageUrl_2, product.imageUrl_3].map((image, index) => (
+            <Grid item xs={12} sm={4} key={index}>
+              <Box
+                sx={{
+                  position: "relative",
+                  overflow: "hidden",
+                  borderRadius: 2,
+                  transition: "transform 0.3s ease",
+                  cursor: "pointer",
+                  "&:hover": {
+                    transform: "scale(1.5)", // Hover zoom effect
+                  },
+                }}
+                onClick={() => handleImageClick(image)}
+              >
+                <CardMedia
+                  component="img"
+                  image={image || "/placeholder-image.jpg"}
+                  alt={`Product Image ${index + 1}`}
+                  sx={{
+                    width: "100%",
+                    height: 200,
+                    objectFit: "cover",
+                    borderRadius: 2,
+                  }}
+                />
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Zoom Modal */}
+        <Dialog open={open} onClose={handleClose} maxWidth="md">
+          <DialogContent sx={{ p: 0 }}>
+            <Box
+              component="img"
+              src={selectedImage || "/placeholder-image.jpg"}
+              alt="Zoomed Image"
+              sx={{
+                width: "100%",
+                maxHeight: "80vh",
+                objectFit: "contain",
+              }}
+            />
+          </DialogContent>
+        </Dialog>
       </Box>
     </>
   );

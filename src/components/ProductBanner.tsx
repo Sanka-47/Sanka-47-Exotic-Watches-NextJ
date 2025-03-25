@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 
 interface ProductBannerProps {
   product: {
@@ -9,65 +9,61 @@ interface ProductBannerProps {
     price: string;
     quantity: number;
     imageUrl: string;
+    imageUrl_2: string;
+    imageUrl_3: string;
     status: string;
   };
 }
 
 export default function ProductBanner({ product }: ProductBannerProps) {
   return (
-    <>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column-reverse', md: 'row' },
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        px: { xs: 3, md: 5 },
+        py: { xs: 4, md: 6 },
+        background: 'linear-gradient(135deg, #f5f5f5, #ffffff)',
+        borderRadius: '12px',
+        boxShadow: '0 5px 15px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      {/* Text Section */}
+      <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
+        <Typography variant="h4" fontWeight={600} color="text.primary" gutterBottom>
+          {product.name}
+        </Typography>
+        <Typography variant="body1" color="text.secondary" mb={3} sx={{ maxWidth: '500px' }}>
+          {product.description}
+        </Typography>
+        
+      </Box>
+
+      {/* Image Section */}
       <Box
         sx={{
+          flex: 1,
           display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'center',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          px: 4,
-          py: 4,
-          backgroundColor: 'white',
-          color: '#666666',
-          boxShadow:
-            '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
-          borderRadius: '0.25rem',
         }}
       >
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="h2" gutterBottom style={{ color: 'black' }}>
-            {product.name}
-          </Typography>
-          <Typography
-            variant="body1"
-            mb={4}
-            sx={{ paddingBottom: { md: '4rem' } }}
-          >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-            malesuada faucibus ex nec ultricies. Donec mattis egestas nisi non
-            pretium. Suspendisse nec eros ut erat facilisis maximus. In congue
-            et leo in varius. Vestibulum sit amet felis ornare, commodo orci ut,
-            feugiat lorem.
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+        <Image
+          src={product.imageUrl_3}
+          alt={product.name}
+          width={400}
+          height={300}
+          priority
+          style={{
+            width: '100%',
+            height: 'auto',
+            borderRadius: '8px',
+            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
           }}
-        >
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            width={400}
-            height={300}
-            priority
-            style={{
-              width: '100%',
-              height: 'auto',
-            }}
-          />
-        </Box>
+        />
       </Box>
-    </>
+    </Box>
   );
 }
