@@ -7,6 +7,8 @@ import {
   PaymentElement,
 } from "@stripe/react-stripe-js";
 import convertToSubcurrency from "@/lib/actions/convertToSubcurrency";
+import { Button, Box, Typography } from "@mui/material";
+import { motion } from "framer-motion";
 
 const CheckoutPage = ({ amount }: { amount: number }) => {
   const stripe = useStripe();
@@ -32,6 +34,7 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
     setLoading(true);
 
     if (!stripe || !elements) {
+      setLoading(false);
       return;
     }
 
@@ -52,12 +55,7 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
     });
 
     if (error) {
-      // This point is only reached if there's an immediate error when
-      // confirming the payment. Show the error to your customer (for example, payment details incomplete)
       setErrorMessage(error.message);
-    } else {
-      // The payment UI automatically closes with a success animation.
-      // Your customer is redirected to your `return_url`.
     }
 
     setLoading(false);
@@ -65,32 +63,127 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
 
   if (!clientSecret || !stripe || !elements) {
     return (
-      <div className="flex items-center justify-center">
-        <div
-          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
-          role="status"
-        >
-          <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-            Loading...
-          </span>
-        </div>
-      </div>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          py: 4,
+        }}
+      >
+        <Box
+          sx={{
+            width: 32,
+            height: 32,
+            border: "4px solid",
+            borderColor: "grey.300",
+            borderTopColor: "primary.main",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite",
+            "@keyframes spin": {
+              "0%": { transform: "rotate(0deg)" },
+              "100%": { transform: "rotate(360deg)" },
+            },
+          }}
+        />
+      </Box>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-2 rounded-md">
-      {clientSecret && <PaymentElement />}
+    <motion.form
+      onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      sx={{
+        bgcolor: "white",
+        p: 3,
+        borderRadius: 2,
+        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      {/* Payment Element */}
+      {clientSecret && (
+        <Box sx={{ mb: 3 }}>
+          <PaymentElement
+            options={{
+              layout: "tabs",
+              paymentMethodOrder: ["card", "link"],
+              fields: {
+                billingDetails: {
+                  name: "auto",
+                  email: "auto",
+                },
+              },
+              wallets: {
+                applePay: "auto",
+                googlePay: "auto",
+              },
+            }}
+          />
+        </Box>
+      )}
 
-      {errorMessage && <div>{errorMessage}</div>}
+      {/* Error Message */}
+      {errorMessage && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Typography
+            variant="body2"
+            color="error"
+            sx={{
+              mb: 2,
+              p: 1,
+              bgcolor: "error.light",
+              borderRadius: 1,
+              color: "error.contrastText",
+            }}
+          >
+            {errorMessage}
+          </Typography>
+        </motion.div>
+      )}
 
-      <button
+      {/* MUI Pay Button */}
+      <Button
+        type="submit"
+        variant="contained"
         disabled={!stripe || loading}
-        className="text-white w-full p-5 bg-black mt-2 rounded-md font-bold disabled:opacity-50 disabled:animate-pulse"
+        sx={{
+          width: "100%",
+          py: 1.5,
+          bgcolor: "primary.main",
+          color: "white",
+          fontWeight: "bold",
+          borderRadius: 2,
+          textTransform: "none",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+          transition: "all 0.3s ease",
+          "&:hover": {
+            bgcolor: "primary.dark",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            transform: "translateY(-1px)",
+          },
+          "&:disabled": {
+            bgcolor: "grey.400",
+            color: "grey.50",
+            boxShadow: "none",
+            animation: loading ? "pulse 1.5s infinite" : "none",
+            "@keyframes pulse": {
+              "0%": { opacity: 0.5 },
+              "50%": { opacity: 0.8 },
+              "100%": { opacity: 0.5 },
+            },
+          },
+        }}
       >
-        {!loading ? `Pay $${amount}` : "Processing..."}
-      </button>
-    </form>
+        {!loading ? `Pay $${amount.toFixed(2)}` : "Processing..."}
+      </Button>
+    </motion.form>
   );
 };
 
