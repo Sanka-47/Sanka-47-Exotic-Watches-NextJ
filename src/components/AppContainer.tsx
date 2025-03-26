@@ -25,11 +25,21 @@ import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import WatchIcon from "@mui/icons-material/Watch";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { SignOutButton } from "./sign-out-button";
 import { SignInButton } from "./sign-in-button";
-import WatchIcon from '@mui/icons-material/Watch';
+
+// Import the Edu AU VIC WA NT Guides font using next/font
+import { Edu_AU_VIC_WA_NT_Guides } from "next/font/google";
+
+// Configure the font
+const eduFont = Edu_AU_VIC_WA_NT_Guides({
+  weight: ["400"], // Specify the weights you need (400 is regular)
+  subsets: ["latin"], // Specify the subsets (latin is sufficient for English)
+  display: "swap", // Ensures font loads with a fallback while downloading
+});
 
 export default function AppContainer({
   children,
@@ -60,14 +70,27 @@ export default function AppContainer({
 
   const drawer = (
     <>
-      <Toolbar sx={{ justifyContent: "center" }}>
-        <Link href="/admin">
-          <StorefrontIcon
+      <Toolbar sx={{ justifyContent: "center", alignItems: "center", gap: 1 }}>
+        <Link href="/admin" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 1 }}>
+          {/* <WatchIcon
             sx={{
-              fontSize: { xs: 35, sm: 45 },
+              fontSize: { xs: 30, sm: 35 },
               color: "hsla(185, 64%, 39%, 1.0)",
             }}
-          />
+          /> */}
+          <Typography
+            variant="h6"
+            sx={{
+              fontSize: { xs: "1rem", sm: "1.25rem" },
+              fontWeight: 350,
+              color: "black",
+              letterSpacing: "0.05em",
+              textShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+              fontFamily: eduFont.style.fontFamily, // Apply the Edu font
+            }}
+          >
+            Exotica Watches
+          </Typography>
         </Link>
       </Toolbar>
 
@@ -79,10 +102,12 @@ export default function AppContainer({
             <Link
               href={drawLink.path}
               passHref
-              style={{ textDecoration: "none" }}
+              style={{ textDecoration: "none", width: "100%" }}
             >
-              <ListItemButton disableRipple sx={{ width: "100vw" }}>
-                <ListItemIcon>{drawLink.icon}</ListItemIcon>
+              <ListItemButton disableRipple sx={{ width: "100%" }}>
+                <ListItemIcon sx={{ color: "rgb(75, 85, 99)" }}>
+                  {drawLink.icon}
+                </ListItemIcon>
                 <ListItemText
                   primary={drawLink.name}
                   sx={{ color: "rgb(75, 85, 99)" }}
@@ -111,17 +136,45 @@ export default function AppContainer({
             padding: "0 16px",
           }}
         >
-          {/* Drawer Toggle Button - Left Side */}
-          <IconButton
-            sx={{
-              mr: 2,
-              display: { sm: "none" },
-              color: "black",
-            }}
-            onClick={handleDrawerToggle}
-          >
-            <MenuIcon />
-          </IconButton>
+          {/* Brand Name and Drawer Toggle Button - Left Side */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton
+              sx={{
+                mr: 1,
+                display: { sm: "none" },
+                color: "black",
+              }}
+              onClick={handleDrawerToggle}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Link href="/admin" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 1 }}>
+              <WatchIcon
+                sx={{
+                  fontSize: { xs: 24, sm: 28 },
+                  color: "#1976d2",
+                }}
+              />
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: { xs: "1rem", sm: "1.25rem" },
+                  fontWeight: 700,
+                  background: "linear-gradient(90deg, #1976d2, #42a5f5)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  letterSpacing: "0.05em",
+                  transition: "transform 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                  },
+                  fontFamily: eduFont.style.fontFamily, // Apply the Edu font
+                }}
+              >
+                Exotica Watch
+              </Typography>
+            </Link>
+          </Box>
 
           {/* Combined User Info and Sign In/Out Buttons - Right Side */}
           <Box
@@ -129,7 +182,7 @@ export default function AppContainer({
               display: "flex",
               alignItems: "center",
               gap: 2,
-              marginLeft: "auto", // Ensure this stays on the right
+              marginLeft: "auto",
             }}
           >
             {/* User Info Section */}
