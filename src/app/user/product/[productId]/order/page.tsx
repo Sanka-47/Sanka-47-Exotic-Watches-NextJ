@@ -36,7 +36,7 @@ export default function OrderPage() {
   return (
     <main className="max-w-6x1 mx-auto p-10 text-white text-center border m-10 rounded-md bg-gradient-to-tr from-blue-500 to-purple-500">
       <div className="mb-10">
-        <h1 className="text-4x1 font-extrabold mb-2">Sonny</h1>
+        <h1 className="text-4x1 font-extrabold mb-2">Red Dragon</h1>
         <h2 className="text-2x1">
           has requested
           <span className="font-bold"> ${numericPrice !== null ? numericPrice : "loading..."}</span>
