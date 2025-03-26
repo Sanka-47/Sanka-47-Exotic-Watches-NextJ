@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import CheckoutPage from "@/components/CheckoutPage";
@@ -6,6 +7,7 @@ import convertToSubcurrency from "@/lib/actions/convertToSubcurrency";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 if (!process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY) {
   throw new Error("NEXT_PUBLIC_STRIPE_PUBLIC_KEY is not defined");
@@ -18,6 +20,7 @@ export default function OrderPage() {
   const [price, setPrice] = useState<string | null>(null);
   const [numericPrice, setNumericPrice] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { data: session, status } = useSession(); // Get session and status
 
   useEffect(() => {
     const priceParam = searchParams.get("price");
@@ -36,6 +39,10 @@ export default function OrderPage() {
     }
   }, [price]);
 
+  // Determine the display name based on session status
+  const displayName =
+    status === "loading" ? "Loading..." : session?.user?.name || "User";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 sm:p-6 md:p-8">
       <motion.div
@@ -46,7 +53,9 @@ export default function OrderPage() {
       >
         {/* Header Section */}
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-semibold text-gray-800">Red Dragon</h1>
+          <h1 className="text-2xl font-semibold text-gray-800">
+            {displayName}
+          </h1>
           <h2 className="text-lg text-gray-600 mt-1">
             has requested{" "}
             <span className="font-bold text-gray-900">
