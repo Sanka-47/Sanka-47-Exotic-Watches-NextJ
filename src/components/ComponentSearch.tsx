@@ -47,8 +47,14 @@ export function FreeSolo() {
 
   // Function to fetch products based on search value and category
   const fetchProducts = async (search: string, categoryId: number) => {
-    const results = await productSearch(search, categoryId);
-    setProducts(results || []);
+    if (categoryId === 0) {
+      // If "All Categories" is selected, display nothing
+      setProducts([]);
+    } else {
+      // Otherwise, fetch products for the selected category
+      const results = await productSearch(search, categoryId);
+      setProducts(results || []);
+    }
   };
 
   // Fetch products when the category changes

@@ -8,6 +8,9 @@ import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import { useState } from "react";
 
 import { ProductStatus } from "@/types";
 import * as actions from "@/actions";
@@ -32,12 +35,55 @@ interface ProductListTableProps {
 }
 
 export default function ProductListTable({ products }: ProductListTableProps) {
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+
   React.useEffect(() => {
     console.log(products);
-  }, []);
+  }, [products]);
 
-  const handleDelete = (id: number) => {
-    actions.productDelete(id);
+  const handleDelete = async (id: number) => {
+    // Show confirmation dialog
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) return;
+
+    setIsDeleting(id);
+
+    try {
+      const response = await actions.productDelete(id);
+
+      if (response.success) {
+        await Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: response.message,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        // Refresh the page to reflect the updated product list
+        router.refresh();
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error: any) {
+      await Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.message || "Something went wrong while deleting the product!",
+      });
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   const rows = products;
@@ -192,13 +238,15 @@ export default function ProductListTable({ products }: ProductListTableProps) {
           <Tooltip title="Delete">
             <IconButton
               onClick={() => handleDelete(params.id as number)}
+              disabled={isDeleting === params.id}
               sx={{
-                color: "#ef5350",
+                color: isDeleting === params.id ? "#bdbdbd" : "#ef5350",
                 "&:hover": {
                   bgcolor: "rgba(239, 83, 80, 0.1)",
                   transform: "scale(1.1)",
                 },
                 transition: "all 0.2s ease-in-out",
+                cursor: isDeleting === params.id ? "not-allowed" : "pointer",
               }}
             >
               <DeleteOutlineOutlinedIcon fontSize="small" />
