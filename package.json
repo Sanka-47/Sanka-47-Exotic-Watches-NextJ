@@ -26,6 +26,7 @@
     "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",
     "decimal.js": "^10.5.0",
+    "framer-motion": "^12.6.0",
     "lucide-react": "^0.483.0",
     "next": "^15.2.4",
     "next-auth": "^5.0.0-beta.25",
