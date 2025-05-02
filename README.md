@@ -15,7 +15,7 @@ Key Features:
 
 This project helped me enhance my skills in full-stack development, database management, and cloud integration. Looking forward to improving it further! 🚀
 
-## Check Out LinkedIn For More - https://www.linkedin.com/posts/kalindu-koanara47_a-watch-selling-website-built-with-activity-7310661467110862850-bUGg?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFNckD8BBQkzMGJWB-kE7mPLt-uBt80vFxo
+Check Out LinkedIn For More - https://www.linkedin.com/posts/kalindu-koanara47_a-watch-selling-website-built-with-activity-7310661467110862850-bUGg?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFNckD8BBQkzMGJWB-kE7mPLt-uBt80vFxo
 
 
 
