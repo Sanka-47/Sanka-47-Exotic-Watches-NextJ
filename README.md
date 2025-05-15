@@ -31,7 +31,8 @@ Key Features:
 
 <li>
 
- ✅ Next.js 15-powered  
+
+ ✅ Stripe Payment Gateway
 </li>
 
   
@@ -40,7 +41,6 @@ Key Features:
  
 
 
- ✅ Stripe Payment Gateway
  ✅ shadcn Charts
  ✅ Responsive & user-friendly UI for a smooth shopping experience
 
