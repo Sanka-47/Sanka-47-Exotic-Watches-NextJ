@@ -25,7 +25,7 @@ Key Features:
 
 <li>
 
- ✅ Next.js 15-powered  
+ ✅ Cloudinary integration for optimized image storage
 </li>
 
 
@@ -39,7 +39,7 @@ Key Features:
  
  
 
- ✅ Cloudinary integration for optimized image storage
+
  ✅ Stripe Payment Gateway
  ✅ shadcn Charts
  ✅ Responsive & user-friendly UI for a smooth shopping experience
