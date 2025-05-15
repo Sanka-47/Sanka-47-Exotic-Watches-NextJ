@@ -12,11 +12,33 @@ Key Features:
  ✅ Next.js 15-powered  
 </li>
 
+<li>
+✅ Secure authentication with NextAuth (Google Auth)
+</li>
+
+
+<li>
+
+ ✅ Prisma ORM for efficient database management
+</li>
+
+
+<li>
+
+ ✅ Next.js 15-powered  
+</li>
+
+
+<li>
+
+ ✅ Next.js 15-powered  
+</li>
+
   
  </ul>
  
- ✅ Secure authentication with NextAuth (Google Auth)
- ✅ Prisma ORM for efficient database management
+ 
+
  ✅ Cloudinary integration for optimized image storage
  ✅ Stripe Payment Gateway
  ✅ shadcn Charts
