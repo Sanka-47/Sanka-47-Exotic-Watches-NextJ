@@ -7,11 +7,14 @@ Building this watch-selling platform has been an exciting journey! I developed a
 Key Features:
  <ul>
 
+<li>
+
+ ✅ Next.js 15-powered  
+</li>
 
   
  </ul>
  
- ✅ Next.js 15-powered 
  ✅ Secure authentication with NextAuth (Google Auth)
  ✅ Prisma ORM for efficient database management
  ✅ Cloudinary integration for optimized image storage
