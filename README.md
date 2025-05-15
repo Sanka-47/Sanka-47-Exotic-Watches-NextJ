@@ -35,14 +35,26 @@ Key Features:
  ✅ Stripe Payment Gateway
 </li>
 
+
+<li>
+
+
+ ✅ shadcn Charts
+</li>
+
+<li>
+
+
+ 
+ ✅ Responsive & user-friendly UI for a smooth shopping experience
+</li>
+
   
  </ul>
  
  
 
 
- ✅ shadcn Charts
- ✅ Responsive & user-friendly UI for a smooth shopping experience
 
 This project helped me enhance my skills in full-stack development, database management, and cloud integration. Looking forward to improving it further! 🚀
 
