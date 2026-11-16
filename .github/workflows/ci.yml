@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    env:
+      SKIP_ENV_VALIDATION: "1"
+      DATABASE_URL: "mysql://user:password@localhost:3306/exotica_watches"
+      NEXTAUTH_SECRET: "ci-secret-ci-secret-ci-secret"
+      GOOGLE_CLIENT_ID: "ci-client-id"
+      GOOGLE_CLIENT_SECRET: "ci-client-secret"
+      CLOUDINARY_CLOUD_NAME: "ci-cloud"
+      CLOUDINARY_API_KEY: "ci-key"
+      CLOUDINARY_API_SECRET: "ci-secret"
+      STRIPE_SECRET_KEY: "sk_test_ci"
+      NEXT_PUBLIC_STRIPE_PUBLIC_KEY: "pk_test_ci"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      - run: npm run build
