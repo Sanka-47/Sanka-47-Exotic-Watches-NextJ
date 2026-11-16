@@ -1,142 +1,70 @@
 "use client";
 
-import * as React from "react";
-import { DataGrid, GridColDef, GridCellParams } from "@mui/x-data-grid";
-import { Box, IconButton, Tooltip } from "@mui/material";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { Box, Chip, IconButton, Tooltip } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import Swal from "sweetalert2";
-import { useState } from "react";
+import { productDelete } from "@/lib/actions/products";
+import { formatUsd } from "@/lib/money";
+import { formatStatus, getStatusColor } from "@/lib/stock";
+import { useFeedback } from "@/components/feedback";
+import type { ProductListItem } from "@/types";
 
-import { ProductStatus } from "@/types";
-import * as actions from "@/actions";
-import { formatToUSD } from "@/utils/moneyFormat";
-import { getStatusColor } from "@/utils/status";
-import formatStatus from "@/utils/formatStatus";
-
-interface ProductData {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-  imageUrl: string;
-  status: string;
-  categoryId: number;
-  categoryName: string;
-}
-
-interface ProductListTableProps {
-  products: ProductData[];
-}
-
-export default function ProductListTable({ products }: ProductListTableProps) {
+export default function ProductListTable({ products }: { products: ProductListItem[] }) {
   const router = useRouter();
-  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const { confirm, notify } = useFeedback();
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  React.useEffect(() => {
-    console.log(products);
-  }, [products]);
-
-  const handleDelete = async (id: number) => {
-    // Show confirmation dialog
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This action cannot be undone!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
+  async function handleDelete(product: ProductListItem) {
+    const confirmed = await confirm({
+      title: "Delete this product?",
+      message: `“${product.name}” and its images will be permanently removed.`,
+      confirmLabel: "Delete",
+      destructive: true,
     });
 
-    if (!result.isConfirmed) return;
+    if (!confirmed) return;
 
-    setIsDeleting(id);
-
+    setDeletingId(product.id);
     try {
-      const response = await actions.productDelete(id);
-
-      if (response.success) {
-        await Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: response.message,
-          timer: 2000,
-          showConfirmButton: false,
-        });
-        // Refresh the page to reflect the updated product list
-        router.refresh();
-      } else {
-        throw new Error(response.message);
-      }
-    } catch (error: any) {
-      await Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: error.message || "Something went wrong while deleting the product!",
-      });
+      const result = await productDelete(product.id);
+      notify(result.message, result.success ? "success" : "error");
+      if (result.success) router.refresh();
+    } catch {
+      notify("Something went wrong while deleting the product.", "error");
     } finally {
-      setIsDeleting(null);
+      setDeletingId(null);
     }
-  };
+  }
 
-  const rows = products;
-
-  const columns: GridColDef[] = [
+  const columns: GridColDef<ProductListItem>[] = [
     {
       field: "imageUrl",
-      headerName: "Product",
-      width: 100,
-      renderCell: (params: GridCellParams) => {
-        const imageUrl = products.find(
-          (product) => product.id === params.id
-        )?.imageUrl;
-
-        return (
-          <Image
-            src={imageUrl || "/placeholder-image.jpg"} // Fallback image
-            alt="product name"
-            width={40}
-            height={40}
-            style={{
-              borderRadius: "8px",
-              objectFit: "cover",
-              border: "1px solid #e0e0e0",
-            }}
-            priority
-          />
-        );
-      },
-    },
-    {
-      field: "name",
-      headerName: "Name",
-      width: 150,
-      renderCell: (params: GridCellParams) => (
-        <span style={{ fontWeight: 500, color: "#1a1a1a" }}>
-          {params.value as string}
-        </span>
+      headerName: "Image",
+      width: 90,
+      sortable: false,
+      renderCell: ({ row }) => (
+        <Image
+          src={row.imageUrl || "/placeholder.svg"}
+          alt={row.name}
+          width={40}
+          height={40}
+          style={{ borderRadius: 8, objectFit: "cover" }}
+        />
       ),
     },
-    {
-      field: "categoryName",
-      headerName: "Category",
-      width: 130,
-      renderCell: (params: GridCellParams) => (
-        <span style={{ color: "#6b7280" }}>{params.value as string}</span>
-      ),
-    },
+    { field: "name", headerName: "Name", width: 180 },
+    { field: "categoryName", headerName: "Category", width: 140 },
     {
       field: "description",
       headerName: "Description",
-      width: 200,
-      renderCell: (params: GridCellParams) => (
+      width: 240,
+      renderCell: ({ row }) => (
         <span
           style={{
             color: "#6b7280",
@@ -145,7 +73,7 @@ export default function ProductListTable({ products }: ProductListTableProps) {
             whiteSpace: "nowrap",
           }}
         >
-          {params.value as string}
+          {row.description}
         </span>
       ),
     },
@@ -153,104 +81,61 @@ export default function ProductListTable({ products }: ProductListTableProps) {
       field: "price",
       headerName: "Price",
       width: 120,
-      renderCell: (params: GridCellParams) => {
-        const paramVal = params.formattedValue as number;
-        const formattedPrice = formatToUSD(paramVal);
-        return <span style={{ fontWeight: 500, color: "#1a1a1a" }}>{formattedPrice}</span>;
-      },
+      renderCell: ({ row }) => <strong>{formatUsd(row.price)}</strong>,
     },
-    {
-      field: "quantity",
-      headerName: "Quantity",
-      width: 120,
-      renderCell: (params: GridCellParams) => (
-        <span style={{ color: "#1a1a1a" }}>{params.value as number}</span>
-      ),
-    },
+    { field: "quantity", headerName: "Stock", width: 90, type: "number" },
     {
       field: "status",
       headerName: "Status",
-      width: 130,
-      renderCell: (params: GridCellParams) => {
-        const status = params.formattedValue as ProductStatus;
-        const statusColor = getStatusColor(status);
-        const statusValue = formatStatus(status);
-
-        return (
-          <span
-            style={{
-              backgroundColor: statusColor || "#1976d2",
-              color: "#fff",
-              padding: "4px 12px",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              textTransform: "uppercase",
-              borderRadius: "12px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {statusValue}
-          </span>
-        );
-      },
+      width: 140,
+      renderCell: ({ row }) => (
+        <Chip
+          size="small"
+          label={formatStatus(row.status)}
+          sx={{ bgcolor: getStatusColor(row.status), color: "#fff", fontWeight: 600 }}
+        />
+      ),
     },
     {
       field: "actions",
       headerName: "Actions",
       width: 150,
-      renderCell: (params: GridCellParams) => (
+      sortable: false,
+      filterable: false,
+      renderCell: ({ row }) => (
         <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
           <Tooltip title="Edit">
-            <Link href={`/admin/product/${params.id}/edit`}>
-              <IconButton
-                sx={{
-                  color: "#1976d2",
-                  "&:hover": {
-                    bgcolor: "rgba(25, 118, 210, 0.1)",
-                    transform: "scale(1.1)",
-                  },
-                  transition: "all 0.2s ease-in-out",
-                }}
-              >
-                <EditOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Link>
+            <IconButton
+              component={Link}
+              href={`/admin/product/${row.id}/edit`}
+              aria-label={`Edit ${row.name}`}
+              size="small"
+            >
+              <EditOutlinedIcon fontSize="small" />
+            </IconButton>
           </Tooltip>
           <Tooltip title="View">
-            <Link href={`/admin/product/${params.id}/view`}>
-              <IconButton
-                sx={{
-                  color: "#4caf50",
-                  "&:hover": {
-                    bgcolor: "rgba(76, 175, 80, 0.1)",
-                    transform: "scale(1.1)",
-                  },
-                  transition: "all 0.2s ease-in-out",
-                }}
-              >
-                <RemoveRedEyeOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Link>
+            <IconButton
+              component={Link}
+              href={`/admin/product/${row.id}/view`}
+              aria-label={`View ${row.name}`}
+              size="small"
+            >
+              <RemoveRedEyeOutlinedIcon fontSize="small" />
+            </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton
-              onClick={() => handleDelete(params.id as number)}
-              disabled={isDeleting === params.id}
-              sx={{
-                color: isDeleting === params.id ? "#bdbdbd" : "#ef5350",
-                "&:hover": {
-                  bgcolor: "rgba(239, 83, 80, 0.1)",
-                  transform: "scale(1.1)",
-                },
-                transition: "all 0.2s ease-in-out",
-                cursor: isDeleting === params.id ? "not-allowed" : "pointer",
-              }}
-            >
-              <DeleteOutlineOutlinedIcon fontSize="small" />
-            </IconButton>
+            <span>
+              <IconButton
+                onClick={() => void handleDelete(row)}
+                disabled={deletingId === row.id}
+                aria-label={`Delete ${row.name}`}
+                size="small"
+                color="error"
+              >
+                <DeleteOutlineOutlinedIcon fontSize="small" />
+              </IconButton>
+            </span>
           </Tooltip>
         </Box>
       ),
@@ -258,77 +143,17 @@ export default function ProductListTable({ products }: ProductListTableProps) {
   ];
 
   return (
-    <Box sx={{ width: "100%", bgcolor: "#f5f5f5", p: 2, borderRadius: 2 }}>
+    <Box sx={{ width: "100%", bgcolor: "#fff", borderRadius: 2, p: 1 }}>
       <DataGrid
-        rows={rows}
+        rows={products}
         columns={columns}
         initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 5 },
-          },
-        }}
-        sx={{
-          bgcolor: "#ffffff",
-          borderRadius: 2,
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-          border: "none",
-          "& .MuiDataGrid-columnHeaders": {
-            bgcolor: "#f5f5f5",
-            borderBottom: "1px solid #e0e0e0",
-            "& .MuiDataGrid-columnHeaderTitle": {
-              fontWeight: 600,
-              color: "#1a1a1a",
-              fontSize: "0.875rem",
-              textTransform: "uppercase",
-            },
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "1px solid #f0f0f0",
-            color: "#1a1a1a",
-            fontSize: "0.875rem",
-            "&:focus": {
-              outline: "none",
-            },
-          },
-          "& .MuiDataGrid-row": {
-            "&:hover": {
-              bgcolor: "rgba(25, 118, 210, 0.05)",
-            },
-            transition: "background-color 0.2s ease-in-out",
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "1px solid #e0e0e0",
-            bgcolor: "#f5f5f5",
-            "& .MuiTablePagination-root": {
-              color: "#1a1a1a",
-            },
-            "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-              fontSize: "0.875rem",
-            },
-          },
-          "& .MuiDataGrid-columnSeparator": {
-            color: "#e0e0e0",
-          },
-          "& .MuiDataGrid-scrollbar": {
-            "&::-webkit-scrollbar": {
-              width: "8px",
-              height: "8px",
-            },
-            "&::-webkit-scrollbar-track": {
-              bgcolor: "#f0f0f0",
-              borderRadius: "4px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              bgcolor: "#bdbdbd",
-              borderRadius: "4px",
-              "&:hover": {
-                bgcolor: "#a0a0a0",
-              },
-            },
-          },
+          pagination: { paginationModel: { page: 0, pageSize: 10 } },
         }}
         pageSizeOptions={[5, 10, 20]}
         disableRowSelectionOnClick
+        autoHeight
+        sx={{ border: "none" }}
       />
     </Box>
   );

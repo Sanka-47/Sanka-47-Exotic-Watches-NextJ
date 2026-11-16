@@ -1,12 +1,11 @@
 "use server";
 
-import { signIn, signOut } from "@/app/api/auth/[...nextauth]/auth";
+import { signIn, signOut } from "@/auth";
 
-export const login = async () => {
+export async function login() {
   await signIn("google", { redirectTo: "/" });
-};
+}
 
-export const logout = async (router: any) => {
-  await signOut();
-  router.refresh();
-};
+export async function logout() {
+  await signOut({ redirectTo: "/" });
+}

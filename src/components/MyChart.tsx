@@ -1,110 +1,80 @@
 "use client";
-import React, { useState } from "react";
+
+import { useState } from "react";
+import { Box, Button, Typography } from "@mui/material";
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  defs,
-  LinearGradient,
-  Stop,
 } from "recharts";
 
-// Chart data (same as before)
 const chartData = [
-  { date: "2025-01-01", desktop: 120, mobile: 800 },
-  { date: "2025-02-01", desktop: 150, mobile: 950 },
-  { date: "2025-03-01", desktop: 130, mobile: 870 },
+  { date: "Jan", desktop: 120, mobile: 800 },
+  { date: "Feb", desktop: 150, mobile: 950 },
+  { date: "Mar", desktop: 130, mobile: 870 },
 ];
 
-// Chart config with gradient IDs and labels
-const chartConfig = {
-  desktop: { gradientId: "desktopGradient", label: "Desktop" },
-  mobile: { gradientId: "mobileGradient", label: "Mobile" },
-};
+const series = {
+  desktop: { label: "Desktop", gradientId: "desktopGradient" },
+  mobile: { label: "Mobile", gradientId: "mobileGradient" },
+} as const;
 
-const InteractiveBarChart = () => {
-  const [activeChart, setActiveChart] = useState("desktop");
+type SeriesKey = keyof typeof series;
 
-  console.log("Chart Data:", chartData); // Debugging log
+export default function MyChart() {
+  const [activeSeries, setActiveSeries] = useState<SeriesKey>("desktop");
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md border border-gray-100">
-      {/* Title */}
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        Monthly Items Sold
-      </h2>
+    <Box>
+      <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+        Monthly items sold
+      </Typography>
 
-      {/* Buttons to Toggle Chart Type */}
-      <div className="flex gap-3 mb-6">
-        {Object.keys(chartConfig).map((key) => (
-          <button
+      <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+        {(Object.keys(series) as SeriesKey[]).map((key) => (
+          <Button
             key={key}
-            onClick={() => setActiveChart(key)}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-              activeChart === key
-                ? "bg-indigo-600 text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
+            size="small"
+            variant={activeSeries === key ? "contained" : "outlined"}
+            onClick={() => setActiveSeries(key)}
+            sx={{ textTransform: "none" }}
           >
-            {chartConfig[key].label}
-          </button>
+            {series[key].label}
+          </Button>
         ))}
-      </div>
+      </Box>
 
-      {/* Bar Chart */}
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chartData}>
-          {/* Define Gradients */}
-          <defs>
-            <linearGradient id="desktopGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#6B7280" stopOpacity={0.9} />
-              <stop offset="95%" stopColor="#4B5563" stopOpacity={0.3} />
-            </linearGradient>
-            <linearGradient id="mobileGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#10B981" stopOpacity={0.9} />
-              <stop offset="95%" stopColor="#059669" stopOpacity={0.3} />
-            </linearGradient>
-          </defs>
+      <Box sx={{ height: 300 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData}>
+            <defs>
+              <linearGradient id="desktopGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#6B7280" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="#4B5563" stopOpacity={0.3} />
+              </linearGradient>
+              <linearGradient id="mobileGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#10B981" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="#059669" stopOpacity={0.3} />
+              </linearGradient>
+            </defs>
 
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis
-            dataKey="date"
-            tickFormatter={(value) => value}
-            stroke="#6b7280"
-            fontSize={12}
-            tickLine={false}
-            axisLine={{ stroke: "#d1d5db" }}
-          />
-          <YAxis
-            stroke="#6b7280"
-            fontSize={12}
-            tickLine={false}
-            axisLine={{ stroke: "#d1d5db" }}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#fff",
-              border: "1px solid #e5e7eb",
-              borderRadius: "8px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-            }}
-            labelStyle={{ color: "#1f2937" }}
-            itemStyle={{ color: "#374151" }}
-          />
-          <Bar
-            dataKey={activeChart}
-            fill={`url(#${chartConfig[activeChart].gradientId})`}
-            radius={[4, 4, 0, 0]} // Rounded top corners
-            barSize={60} // Increased bar thickness
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="date" stroke="#6b7280" fontSize={12} tickLine={false} />
+            <YAxis stroke="#6b7280" fontSize={12} tickLine={false} />
+            <Tooltip />
+            <Bar
+              dataKey={activeSeries}
+              fill={`url(#${series[activeSeries].gradientId})`}
+              radius={[4, 4, 0, 0]}
+              barSize={60}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
+    </Box>
   );
-};
-
-export default InteractiveBarChart;
+}

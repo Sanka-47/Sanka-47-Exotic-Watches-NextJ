@@ -1,47 +1,78 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  useStripe,
-  useElements,
-  PaymentElement,
-} from "@stripe/react-stripe-js";
-import convertToSubcurrency from "@/lib/actions/convertToSubcurrency";
-import { Button, Box, Typography } from "@mui/material";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { Alert, Box, Button, CircularProgress, Typography } from "@mui/material";
+import { formatUsd } from "@/lib/money";
 
-const CheckoutPage = ({ amount }: { amount: number }) => {
+export default function CheckoutPage({
+  amount,
+  productId,
+  productName,
+}: {
+  amount: number;
+  productId: number;
+  productName: string;
+}) {
   const stripe = useStripe();
   const elements = useElements();
-  const [errorMessage, setErrorMessage] = useState<string>();
-  const [clientSecret, setClientSecret] = useState("");
+  const started = useRef(false);
+
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    fetch("/api/create-payment-intent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ amount: convertToSubcurrency(amount) }),
-    })
-      .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret));
-  }, [amount]);
+    // Guards against the double effect invocation of React StrictMode in dev.
+    if (started.current) return;
+    started.current = true;
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
+    const controller = new AbortController();
 
-    if (!stripe || !elements) {
-      setLoading(false);
-      return;
+    async function createIntent() {
+      try {
+        const response = await fetch("/api/create-payment-intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId, quantity: 1 }),
+          signal: controller.signal,
+        });
+
+        const data = (await response.json()) as { clientSecret?: string; error?: string };
+
+        if (!response.ok || !data.clientSecret) {
+          throw new Error(data.error ?? "Could not start the payment.");
+        }
+
+        setClientSecret(data.clientSecret);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setErrorMessage(error instanceof Error ? error.message : "Could not start the payment.");
+      }
     }
 
-    const { error: submitError } = await elements.submit();
+    void createIntent();
+    return () => controller.abort();
+  }, [productId, attempt]);
 
+  function retry() {
+    started.current = false;
+    setErrorMessage(null);
+    setAttempt((current) => current + 1);
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setErrorMessage(null);
+
+    if (!stripe || !elements || !clientSecret) return;
+
+    setLoading(true);
+
+    const { error: submitError } = await elements.submit();
     if (submitError) {
-      setErrorMessage(submitError.message);
+      setErrorMessage(submitError.message ?? "Please check your payment details.");
       setLoading(false);
       return;
     }
@@ -50,141 +81,76 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
       elements,
       clientSecret,
       confirmParams: {
-        return_url: `http://www.localhost:3000/payment-success?amount=${amount}`,
+        return_url: `${window.location.origin}/payment-success`,
       },
     });
 
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.message ?? "The payment could not be completed.");
+      setLoading(false);
     }
+  }
 
-    setLoading(false);
-  };
-
-  if (!clientSecret || !stripe || !elements) {
+  if (!clientSecret) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          py: 4,
-        }}
-      >
-        <Box
-          sx={{
-            width: 32,
-            height: 32,
-            border: "4px solid",
-            borderColor: "grey.300",
-            borderTopColor: "primary.main",
-            borderRadius: "50%",
-            animation: "spin 1s linear infinite",
-            "@keyframes spin": {
-              "0%": { transform: "rotate(0deg)" },
-              "100%": { transform: "rotate(360deg)" },
-            },
-          }}
-        />
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, py: 6 }}>
+        {errorMessage ? (
+          <>
+            <Alert severity="error" sx={{ width: "100%" }}>
+              {errorMessage}
+            </Alert>
+            <Button variant="outlined" onClick={retry}>
+              Try again
+            </Button>
+          </>
+        ) : (
+          <>
+            <CircularProgress />
+            <Typography variant="body2" color="text.secondary">
+              Preparing secure payment…
+            </Typography>
+          </>
+        )}
       </Box>
     );
   }
 
   return (
-    <motion.form
+    <form
       onSubmit={handleSubmit}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      sx={{
-        bgcolor: "white",
-        p: 3,
-        borderRadius: 2,
-        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+      style={{
+        background: "#fff",
+        padding: 24,
+        borderRadius: 12,
+        border: "1px solid #e0e0e0",
       }}
     >
-      {/* Payment Element */}
-      {clientSecret && (
-        <Box sx={{ mb: 3 }}>
-          <PaymentElement
-            options={{
-              layout: "tabs",
-              paymentMethodOrder: ["card", "link"],
-              fields: {
-                billingDetails: {
-                  name: "auto",
-                  email: "auto",
-                },
-              },
-              wallets: {
-                applePay: "auto",
-                googlePay: "auto",
-              },
-            }}
-          />
-        </Box>
-      )}
+      <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+        {productName}
+      </Typography>
 
-      {/* Error Message */}
-      {errorMessage && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Typography
-            variant="body2"
-            color="error"
-            sx={{
-              mb: 2,
-              p: 1,
-              bgcolor: "error.light",
-              borderRadius: 1,
-              color: "error.contrastText",
-            }}
-          >
-            {errorMessage}
-          </Typography>
-        </motion.div>
-      )}
+      <PaymentElement options={{ layout: "tabs" }} />
 
-      {/* MUI Pay Button */}
+      {errorMessage ? (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {errorMessage}
+        </Alert>
+      ) : null}
+
       <Button
         type="submit"
         variant="contained"
+        fullWidth
+        size="large"
         disabled={!stripe || loading}
-        sx={{
-          width: "100%",
-          py: 1.5,
-          bgcolor: "primary.main",
-          color: "white",
-          fontWeight: "bold",
-          borderRadius: 2,
-          textTransform: "none",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          transition: "all 0.3s ease",
-          "&:hover": {
-            bgcolor: "primary.dark",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            transform: "translateY(-1px)",
-          },
-          "&:disabled": {
-            bgcolor: "grey.400",
-            color: "grey.50",
-            boxShadow: "none",
-            animation: loading ? "pulse 1.5s infinite" : "none",
-            "@keyframes pulse": {
-              "0%": { opacity: 0.5 },
-              "50%": { opacity: 0.8 },
-              "100%": { opacity: 0.5 },
-            },
-          },
-        }}
+        sx={{ mt: 3, textTransform: "none", py: 1.5 }}
       >
-        {!loading ? `Pay $${amount.toFixed(2)}` : "Processing..."}
+        {loading ? "Processing…" : `Pay ${formatUsd(amount)}`}
       </Button>
-    </motion.form>
-  );
-};
 
-export default CheckoutPage;
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
+        Demo checkout. Use Stripe test card 4242 4242 4242 4242 with any future expiry date.
+      </Typography>
+    </form>
+  );
+}
