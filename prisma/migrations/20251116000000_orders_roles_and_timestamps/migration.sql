@@ -38,7 +38,11 @@ ALTER TABLE `Product`
     MODIFY `imageUrl_2` TEXT NULL,
     MODIFY `imageUrl_3` TEXT NULL,
     ADD COLUMN `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    ADD COLUMN `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3);
+    ADD COLUMN `updatedAt` DATETIME(3) NULL;
+
+-- Backfill the new @updatedAt column for existing rows before making it NOT NULL.
+UPDATE `Product` SET `updatedAt` = `createdAt` WHERE `updatedAt` IS NULL;
+ALTER TABLE `Product` MODIFY `updatedAt` DATETIME(3) NOT NULL;
 
 -- AlterTable: category is optional, unique name, indexes
 ALTER TABLE `Product` DROP FOREIGN KEY `Product_categoryId_fkey`;
