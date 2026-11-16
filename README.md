@@ -156,7 +156,9 @@ Product categories are not seeded automatically. Create rows in the `Categories`
 ## Security notes
 
 - **Authorization is server-side.** `requireAdmin`/`requireUser` guard server actions,
-  API routes and layouts. The admin layout redirects unauthenticated and non-admin users.
+  API routes, the admin layout **and every admin page** (layouts and pages render in
+  parallel, so the page-level check prevents data fetching before the redirect). The admin
+  layout redirects unauthenticated and non-admin users.
 - **Prices are never trusted from the client.** Only `productId` and `quantity` cross the
   network; the server computes cents from the database.
 - **Payments are verified, not assumed.** The success page retrieves the PaymentIntent

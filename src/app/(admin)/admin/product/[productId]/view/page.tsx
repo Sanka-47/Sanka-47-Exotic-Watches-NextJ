@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getProductDetail } from "@/lib/products";
+import { requireAdminPage } from "@/lib/auth-guards";
 import ProductView from "@/components/ProductView";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +10,7 @@ interface ProductViewPageProps {
 }
 
 export default async function ProductViewPage({ params }: ProductViewPageProps) {
+  await requireAdminPage();
   const { productId } = await params;
   const id = Number.parseInt(productId, 10);
   const product = Number.isInteger(id) ? await getProductDetail(id) : null;

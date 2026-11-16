@@ -8,6 +8,11 @@ export class UnauthorizedError extends Error {
   }
 }
 
+/**
+ * Pages call this even though their layout also guards, because Next renders
+ * layouts and pages in parallel: without a page-level guard the page would run
+ * its database queries before the layout redirect is resolved.
+ */
 export async function getCurrentUser() {
   const session = await auth();
   return session?.user ?? null;

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getEditableProduct } from "@/lib/products";
+import { requireAdminPage } from "@/lib/auth-guards";
 import ProductEditForm from "@/components/ProductEditForm";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +10,7 @@ interface ProductEditPageProps {
 }
 
 export default async function ProductEditPage({ params }: ProductEditPageProps) {
+  await requireAdminPage();
   const { productId } = await params;
   const id = Number.parseInt(productId, 10);
   const product = Number.isInteger(id) ? await getEditableProduct(id) : null;

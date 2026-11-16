@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -40,12 +40,19 @@ export default function ProductAddForm({ categories }: { categories: CategoryOpt
     categoryId: "",
   });
   const [previews, setPreviews] = useState<Preview[]>([]);
+  const previewsRef = useRef<Preview[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    return () => previews.forEach((preview) => URL.revokeObjectURL(preview.url));
+    previewsRef.current = previews;
   }, [previews]);
+
+  // Revoke object URLs only when the component unmounts (or an image is
+  // explicitly replaced/removed), not on every state update.
+  useEffect(() => {
+    return () => previewsRef.current.forEach((preview) => URL.revokeObjectURL(preview.url));
+  }, []);
 
   function handleChange(field: keyof typeof fields) {
     return (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,10 +65,13 @@ export default function ProductAddForm({ categories }: { categories: CategoryOpt
       .filter((file) => file.type.startsWith("image/") && file.size <= 5 * 1024 * 1024)
       .slice(0, MAX_IMAGES);
 
+    previews.forEach((preview) => URL.revokeObjectURL(preview.url));
     setPreviews(selected.map((file) => ({ file, url: URL.createObjectURL(file) })));
   }
 
   function removePreview(url: string) {
+    const target = previews.find((preview) => preview.url === url);
+    if (target) URL.revokeObjectURL(target.url);
     setPreviews((current) => current.filter((preview) => preview.url !== url));
   }
 

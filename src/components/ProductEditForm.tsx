@@ -128,6 +128,7 @@ export default function ProductEditForm({ product }: { product: EditableProduct 
                 alt="Product image preview"
                 width={120}
                 height={120}
+                unoptimized
                 style={{ objectFit: "cover", borderRadius: 8 }}
               />
               <Box>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Box, Button, Card, CardContent, CardMedia, Chip, Typography } from "@mui/material";
 import { getLowStockProducts } from "@/lib/products";
+import { requireAdminPage } from "@/lib/auth-guards";
 import { formatUsd } from "@/lib/money";
 import { formatStatus, getStatusColor } from "@/lib/stock";
 import MyChart from "@/components/MyChart";
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AnalyticsPage() {
+  await requireAdminPage();
   const lowStockProducts = await getLowStockProducts();
 
   return (

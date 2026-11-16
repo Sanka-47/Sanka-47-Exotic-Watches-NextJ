@@ -8,6 +8,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
   session: { strategy: "database" },
   secret: env.NEXTAUTH_SECRET,
+  // Required in production for self-hosted deployments; Vercel sets it
+  // automatically but `npm start` locally does not.
+  trustHost: true,
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
