@@ -1,22 +1,14 @@
 import type { NextConfig } from "next";
-import { devIndicatorServerState } from "next/dist/server/dev/dev-indicator-server-state";
 
-const nextConfig = {
-
-
+const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        pathname: '**',
-      },
-      
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com", pathname: "/**" },
+      { protocol: "https", hostname: "avatars.googleusercontent.com", pathname: "/**" },
     ],
-    domains: ["avatars.googleusercontent.com", "lh3.googleusercontent.com"], // Add lh3.googleusercontent.com here
-
-    
   },
+  poweredByHeader: false,
 };
 
-module.exports = nextConfig;
+export default nextConfig;
