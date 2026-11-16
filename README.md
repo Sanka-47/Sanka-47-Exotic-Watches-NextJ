@@ -12,12 +12,15 @@ role-protected admin dashboard for inventory management.
 
 ## Screenshots
 
-_Add screenshots or a short GIF to `docs/` and reference them here. Recruiters look at
-the README before they read a single line of code._
+Demo data, captured from the running app at 1440 px wide.
 
-| Storefront | Product page | Checkout | Admin dashboard |
-| --- | --- | --- | --- |
-| _screenshot_ | _screenshot_ | _screenshot_ | _screenshot_ |
+| Storefront | Product detail |
+| --- | --- |
+| ![Storefront with search, category filter and stock badges](docs/storefront.webp) | ![Product detail with price, stock status and order action](docs/product.webp) |
+
+| Admin dashboard | Stock & analytics |
+| --- | --- |
+| ![Admin product table with stock status badges](docs/admin.webp) | ![Low-stock cards and analytics charts](docs/analytics.webp) |
 
 ## Features
 

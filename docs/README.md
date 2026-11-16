@@ -1,12 +1,14 @@
 # Screenshots
 
-Add PNG/WebP screenshots or a short screen recording here and reference them from the
-main README. Suggested set:
+Screenshots used in the main README. They were captured from the app running against
+demo seed data at 1440 px wide and exported as WebP (quality 82, under ~150 KB each).
 
-- `storefront.png` — catalogue with search/filter
-- `product.png` — product detail page
-- `checkout.png` — Stripe Payment Element
-- `admin.png` — admin product table
-- `analytics.png` — low-stock and chart views
+- `storefront.webp` — catalogue with search, category filter and stock badges
+- `product.webp` — product detail page
+- `admin.webp` — admin product table
+- `analytics.webp` — low-stock cards and analytics charts
 
-Keep file sizes reasonable (under ~500 KB each) and avoid including real customer data.
+The checkout screen is not included because capturing it requires live Stripe test keys.
+
+To refresh them, capture at 1440×900 (full page for analytics), keep the same filenames
+and re-export as WebP. Avoid showing real customer data.
